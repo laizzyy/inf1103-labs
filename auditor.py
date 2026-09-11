@@ -15,3 +15,7 @@ while True:
     if stock < 0:
         print("Error: Stock quantity cannot be negative.")
         continue
+
+    inventory += stock
+
+    print("Current inventory:", inventory)
