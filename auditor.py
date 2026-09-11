@@ -5,5 +5,9 @@ while True:
 
     if stock == "quit":
         break
-    
+
+    if not stock.isdigit():
+        print("Error: Please enter a valid number.")
+        continue
+
     stock = int(stock)
