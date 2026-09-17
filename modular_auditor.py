@@ -18,6 +18,11 @@ def calculate_tax(amount):
     tax = amount * 0.10
     return tax
 
+def generate_report(total_units, failed_attempts):
+    print("\n--- Final Report ---")
+    print("Total Deliveries Processed:", total_units)
+    print("Number of Failed/Rejected Entries:", failed_attempts)
+    
 inventory = 0
 failed_attempts = 0
 deliveries_processed = 0
