@@ -15,6 +15,3 @@ def get_valid_input():
     return int(stock)
 
 
-inventory = 0
-failed_attempts = 0
-deliveries_processed = 0
