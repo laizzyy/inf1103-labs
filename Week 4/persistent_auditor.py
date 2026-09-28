@@ -1,6 +1,11 @@
-inventory = 0
-failed_attempts = 0
-deliveries_processed = 0
+def load_inventory():
+    try:
+        with open("inventory.txt", "r") as file:
+            inventory = int(file.readline().strip())
+            return inventory
+    except FileNotFoundError:
+        return 0
+
 
 def get_valid_input():
     stock = input("Enter stock quantity (or type quit): ")
@@ -14,18 +19,27 @@ def get_valid_input():
 
     return int(stock)
 
+
 def process_delivery(current_total, new_value):
     new_total = current_total + new_value
     return new_total
+
 
 def calculate_tax(amount):
     tax = amount * 0.10
     return tax
 
+
 def generate_report(total_units, failed_attempts):
     print("\n--- Final Report ---")
     print("Total Deliveries Processed:", total_units)
     print("Number of Failed/Rejected Entries:", failed_attempts)
+
+
+inventory = load_inventory()
+failed_attempts = 0
+deliveries_processed = 0
+
 
 while True:
     delivery = get_valid_input()
@@ -46,5 +60,3 @@ while True:
     print("Delivery amount:", delivery)
     print("Tax for this delivery: $", tax)
     print("Current inventory:", inventory)
-    
-
