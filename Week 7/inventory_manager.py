@@ -1,7 +1,8 @@
 import json
 import os
+from abc import ABC, abstractmethod
 
-class Product:
+class Product(ABC):
     def __init__(self, product_id, name, price, stock):
         self.product_id = product_id
         self.name = name
@@ -11,6 +12,7 @@ class Product:
     def update_stock(self, new_stock):
         self.stock = new_stock
 
+    @abstractmethod
     def display_information(self):
         print(f"ID: {self.product_id}")
         print(f"Name: {self.name}")
@@ -44,7 +46,19 @@ class Inventory:
         else:
             print("Product not found.")
 
+class CanBeShipped(ABC):
+
+    @abstractmethod
+    def calculate_shipping_cost(self):
+        pass
+
 class PhysicalProduct(Product):
+
+    def calculate_shipping_cost(self):
+        return self.weight * 5
+
+    def get_fulfilment_info(self):
+        return "This product requires physical shipping."
 
     def __init__(self, product_id, name, price, stock, weight):
         super().__init__(product_id, name, price, stock)
@@ -55,6 +69,9 @@ class PhysicalProduct(Product):
         print(f"Weight: {self.weight} kg")
 
 class DigitalProduct(Product):
+
+    def get_fulfilment_info(self):
+        return "This product is delivered digitally."
 
     def __init__(self, product_id, name, price, stock, download_size):
         super().__init__(product_id, name, price, stock)
@@ -67,6 +84,3 @@ class DigitalProduct(Product):
 laptop = PhysicalProduct("P001", "Laptop", 1200, 15, 2.5)
 software = DigitalProduct("P002", "Antivirus", 59.90, 20, 500)
 
-laptop.display_information()
-print()
-software.display_information()
