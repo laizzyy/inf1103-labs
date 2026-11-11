@@ -1,0 +1,67 @@
+[
+    {
+        "id": "P001",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 15,
+        "supplier": {
+            "supplier_id": "S000",
+            "name": "Unknown Supplier",
+            "contact_email": "unknown@example.com"
+        },
+        "type": "physical",
+        "weight": 0.0
+    },
+    {
+        "id": "P002",
+        "name": "Mouse",
+        "price": 25.5,
+        "stock": 40,
+        "supplier": {
+            "supplier_id": "S000",
+            "name": "Unknown Supplier",
+            "contact_email": "unknown@example.com"
+        },
+        "type": "physical",
+        "weight": 0.0
+    },
+    {
+        "id": "P010",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 15,
+        "supplier": {
+            "supplier_id": "S000",
+            "name": "Unknown Supplier",
+            "contact_email": "unknown@example.com"
+        },
+        "type": "physical",
+        "weight": 2.5
+    },
+    {
+        "id": "P011",
+        "name": "Antivirus",
+        "price": 59.9,
+        "stock": 20,
+        "supplier": {
+            "supplier_id": "S000",
+            "name": "Unknown Supplier",
+            "contact_email": "unknown@example.com"
+        },
+        "type": "digital",
+        "download_size": 500.0
+    },
+    {
+        "id": "P100",
+        "name": "Keyboard",
+        "price": 50.0,
+        "stock": 10,
+        "supplier": {
+            "supplier_id": "S001",
+            "name": "Tech Supplies",
+            "contact_email": "sales@example.com"
+        },
+        "type": "physical",
+        "weight": 0.5
+    }
+]
