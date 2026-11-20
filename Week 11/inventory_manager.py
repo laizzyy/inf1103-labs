@@ -48,11 +48,11 @@ class Product(ABC):
         self.supplier: Supplier = supplier
 
 
-        def update_stock(self, new_stock: int) -> None:
-            if new_stock < 0:
-                raise ValueError("Stock cannot be negative.")
+    def update_stock(self, new_stock: int) -> None:
+        if new_stock < 0:
+            raise ValueError("Stock cannot be negative.")
 
-            self.__stock = new_stock
+        self.__stock = new_stock
 
     def display_information(self):
         print(f"ID: {self.__product_id}")
