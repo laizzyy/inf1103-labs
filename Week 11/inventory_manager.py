@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 from abc import ABC, abstractmethod
@@ -32,14 +33,26 @@ class Product(ABC):
         stock: int,
         supplier: Supplier
     ) -> None:
+
+        # Validate product information
+        if price <= 0:
+            raise ValueError("Price must be greater than zero.")
+
+        if stock < 0:
+            raise ValueError("Stock cannot be negative.")
+
         self.__product_id = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
         self.supplier: Supplier = supplier
 
-    def update_stock(self, new_stock):
-        self.__stock = new_stock
+
+        def update_stock(self, new_stock: int) -> None:
+            if new_stock < 0:
+                raise ValueError("Stock cannot be negative.")
+
+            self.__stock = new_stock
 
     def display_information(self):
         print(f"ID: {self.__product_id}")
@@ -141,7 +154,44 @@ class DigitalProduct(Product):
 
     def get_fulfilment_info(self):
         return "This product is delivered digitally."
-    
+
+
+# =====================================
+# PRODUCT FACTORY
+# =====================================
+
+class ProductFactory:
+
+    @staticmethod
+    def create(
+        product_type: str,
+        product_id: str,
+        name: str,
+        price: float,
+        stock_quantity: int,
+        supplier: Supplier,
+        weight: float = 0.0,
+        download_size: float = 0.0
+    ) -> Product:
+
+        if product_type == "physical":
+            return PhysicalProduct(
+                product_id, name, price,
+                stock_quantity, weight, supplier
+            )
+
+        elif product_type == "digital":
+            return DigitalProduct(
+                product_id, name, price,
+                stock_quantity, download_size, supplier
+            )
+
+        else:
+            raise ValueError(
+                f"Unknown product type: {product_type}"
+            )
+
+
 # =====================================
 # INVENTORY CLASS
 # =====================================
@@ -237,6 +287,10 @@ class StudentDiscount(DiscountStrategy):
 class OrderLine:
 
     def __init__(self, product: Product, quantity: int) -> None:
+
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero.")
+
         self.product: Product = product
         self.quantity: int = quantity
 
@@ -329,10 +383,10 @@ def save_inventory(inventory: Inventory) -> None:
     print("Inventory saved successfully!")
 
 
+
 # =====================================
 # LOAD INVENTORY
 # =====================================
-
 
 def load_inventory() -> Inventory:
     inventory = Inventory()
@@ -365,24 +419,27 @@ def load_inventory() -> Inventory:
 
             supplier = suppliers[supplier_id]
 
+            # UPDATED: Use ProductFactory instead of direct creation
             if item.get("type", "physical") == "physical":
-                product = PhysicalProduct(
+                product = ProductFactory.create(
+                    "physical",
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item.get("weight", 0.0),
-                    supplier
+                    supplier,
+                    weight=item.get("weight", 0.0)
                 )
 
             elif item["type"] == "digital":
-                product = DigitalProduct(
+                product = ProductFactory.create(
+                    "digital",
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["download_size"],
-                    supplier
+                    supplier,
+                    download_size=item["download_size"]
                 )
 
             else:
@@ -397,6 +454,58 @@ def load_inventory() -> Inventory:
         print(f"Error loading inventory: {error}")
 
     return inventory
+
+
+def load_products(
+    path: str,
+    inventory: Inventory,
+    supplier: Supplier
+) -> None:
+
+    loaded = 0
+
+    try:
+        file = open(path, newline="", encoding="utf-8")
+
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+
+    else:
+        with file:
+            reader = csv.reader(file)
+            next(reader, None)
+
+            for row_number, row in enumerate(reader, start=2):
+                try:
+                    if len(row) != 5:
+                        raise ValueError("Expected 5 columns.")
+
+                    product_type, product_id, name, price_text, stock_text = row
+
+                    price = float(price_text)
+                    stock = int(stock_text)
+
+                    product = ProductFactory.create(
+                        product_type,
+                        product_id,
+                        name,
+                        price,
+                        stock,
+                        supplier
+                    )
+
+                    inventory.add_product(product)
+                    loaded += 1
+
+                except ValueError as error:
+                    print(f"Skipping row {row_number}: {error}")
+
+        print(f"{loaded} products loaded.")
+
+    finally:
+        print("Load attempt finished.")
+
+
 
 # =====================================
 # DISPLAY MENU
@@ -416,6 +525,21 @@ def display_menu():
 # =====================================
 # ADD NEW PRODUCT
 # =====================================
+
+
+def get_positive_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
 
 
 def add_new_product(inventory: Inventory) -> None:
@@ -447,11 +571,11 @@ def add_new_product(inventory: Inventory) -> None:
         return
 
     try:
-        price = float(input("Price: "))
+        price = get_positive_float("Price: ")
         stock = int(input("Stock Quantity: "))
 
-        if price < 0 or stock < 0:
-            print("Price and stock cannot be negative.")
+        if price <= 0 or stock < 0:
+            print("Price must be greater than zero and stock cannot be negative.")
             return
 
         # Supplier information
@@ -477,8 +601,9 @@ def add_new_product(inventory: Inventory) -> None:
                 print("Weight cannot be negative.")
                 return
 
-            product = PhysicalProduct(
-                product_id, name, price, stock, weight, supplier
+            product = ProductFactory.create(
+                "physical", product_id, name,
+                price, stock, supplier, weight=weight
             )
 
         else:
@@ -488,8 +613,9 @@ def add_new_product(inventory: Inventory) -> None:
                 print("Download size cannot be negative.")
                 return
 
-            product = DigitalProduct(
-                product_id, name, price, stock, download_size, supplier
+            product = ProductFactory.create(
+                "digital", product_id, name,
+                price, stock, supplier, download_size=download_size
             )
 
         inventory.add_product(product)
